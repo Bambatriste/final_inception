@@ -1,0 +1,43 @@
+version: "2.2"
+services:
+  mariadb:
+    build: ./requierements/mariadb
+    ports:
+      - "3306:3306"
+    container_name: db_inception
+    networks:
+      - internal
+    env_file:
+      - .env
+    volumes:
+      - /home/aedouard/data/database:/var/lib/mysql
+    restart: unless-stopped
+  wordpress:
+    build: ./requierements/wordpress
+    ports:
+      - "9000:9000"
+    container_name: wordpress_inception
+    networks:
+      - internal
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    volumes:
+      - /home/aedouard/data/wordpress:/var/www/html
+    restart: unless-stopped
+  nginx:
+    build: ./requierements/nginx
+    container_name: nginx_inception
+    ports:
+      - "443:443"
+    networks:
+      - internal
+    depends_on:
+      - wordpress
+    volumes:
+      - /home/aedouard/data/wordpress:/var/www/html
+    restart: unless-stopped
+networks:
+  internal:
+    driver : bridge
